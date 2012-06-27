@@ -111,14 +111,6 @@ var boud = map[int]tcflag_t{
 	4000000: 0010017,
 }
 
-const (
-	cbaud   = 0010017
-	cbaudex = 0010000
-)
-
-// bits/termios.h
-const csize = 0000060
-
 // bits/termios.h
 var bits = map[int]tcflag_t{
 	5: 0000000,
@@ -156,6 +148,13 @@ const (
 	vwerase
 	vlnext
 	veol2
+)
+
+// bits/termios.h
+const (
+	cbaud   = 0010017
+	cbaudex = 0010000
+	crtscts = 020000000000
 )
 
 // asm-generic/ioctls.h
@@ -216,7 +215,7 @@ func (s *Serial) init() error {
 	return nil
 }
 
-func (s *Serial) speed(b int) error {
+func (s *Serial) setSpeed(b int) error {
 	var t termios
 	bb, ok := boud[b]
 	if !ok {
@@ -233,4 +232,55 @@ func (s *Serial) speed(b int) error {
 		return err
 	}
 	return nil
+}
+
+func (s *Serial) setFlowCtrl(hw, soft bool) error {
+	var t termios
+	if err := s.tcGetAttr(&t); err != nil {
+		return err
+	}
+	if hw {
+		t.c_cflag |= crtscts
+	} else {
+		t.c_cflag &^= crtscts
+	}
+	if soft {
+		t.c_iflag |= (ixon | ixoff | ixany)
+	} else {
+		t.c_iflag &^= (ixon | ixoff | ixany)
+	}
+	if err := s.tcSetAttr(&t); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Serial) setMode(canon bool) error {
+	var t termios
+	if err := s.tcGetAttr(&t); err != nil {
+		return err
+	}
+	if canon {
+		t.c_iflag |= icanon
+	} else {
+		t.c_iflag &^= icanon
+	}
+	if err := s.tcSetAttr(&t); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Serial) setRawRead(vmin, vtime int) error {
+	var t termios
+	if err := s.tcGetAttr(&t); err != nil {
+		return err
+	}
+	t.c_cc[vmin] = cc_t(vmin)
+	t.c_cc[vtime] = cc_t(vtime)
+	if err := s.tcSetAttr(&t); err != nil {
+		return err
+	}
+	return nil
+
 }
