@@ -234,6 +234,44 @@ func (s *Serial) setSpeed(b int) error {
 	return nil
 }
 
+func (s *Serial) setParity(parity, odd bool) error {
+	var t termios
+	if err := s.tcGetAttr(&t); err != nil {
+		return err
+	}
+	if parity {
+		t.c_cflag |= parenb
+	} else {
+		t.c_cflag &^= parenb
+	}
+	if odd {
+		t.c_cflag |= parodd
+	} else {
+		t.c_cflag &^= parodd
+	}
+	if err := s.tcSetAttr(&t); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Serial) setStopBits2(two bool) error {
+	var t termios
+	if err := s.tcGetAttr(&t); err != nil {
+		return err
+	}
+	if two {
+		t.c_cflag |= cstopb
+	} else {
+		t.c_cflag &^= cstopb
+	}
+
+	if err := s.tcSetAttr(&t); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s *Serial) setFlowCtrl(hw, soft bool) error {
 	var t termios
 	if err := s.tcGetAttr(&t); err != nil {
