@@ -203,16 +203,7 @@ func (s *Serial) init() error {
 		return err
 	}
 	// Clear non-blocking flag (we need nonblocking only for Open)
-	_, _, e := syscall.Syscall(
-		syscall.SYS_FCNTL,
-		uintptr(s.f.Fd()),
-		uintptr(syscall.F_SETFL),
-		uintptr(0),
-	)
-	if e != 0 {
-		return os.NewSyscallError("fcntl", e)
-	}
-	return nil
+	return syscall.SetNonblock(int(s.f.Fd()), false)
 }
 
 func (s *Serial) setSpeed(b int) error {
