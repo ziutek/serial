@@ -255,7 +255,7 @@ func (s *Serial) setFlowCtrl(hw, soft bool) error {
 	return nil
 }
 
-func (s *Serial) setMode(canon bool) error {
+func (s *Serial) setCanon(canon bool) error {
 	var t termios
 	if err := s.tcGetAttr(&t); err != nil {
 		return err

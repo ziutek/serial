@@ -76,8 +76,8 @@ func (s *Serial) SetFlowCtrl(hw, soft bool) error {
 }
 
 // Sets canonical/raw mode
-func (s *Serial) SetMode(canon bool) error {
-	return s.setMode(canon)
+func (s *Serial) SetCanon(canon bool) error {
+	return s.setCanon(canon)
 }
 
 // Sets Read behavior for noncanonical mode.
