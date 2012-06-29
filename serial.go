@@ -75,6 +75,15 @@ func (s *Serial) SetFlowCtrl(hw, soft bool) error {
 	return s.setFlowCtrl(hw, soft)
 }
 
+// two == true means two stop bits, two == false means one stop bit
+func (s *Serial) SetStopBits2(two bool) error {
+	return s.setStopBits2(two)
+}
+
+func (s *Serial) SetParity(parity, odd bool) error {
+	return s.setParity(parity, odd)
+}
+
 // Sets canonical/raw mode
 func (s *Serial) SetCanon(canon bool) error {
 	return s.setCanon(canon)

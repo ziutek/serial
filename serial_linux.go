@@ -203,16 +203,7 @@ func (s *Serial) init() error {
 		return err
 	}
 	// Clear non-blocking flag (we need nonblocking only for Open)
-	_, _, e := syscall.Syscall(
-		syscall.SYS_FCNTL,
-		uintptr(s.f.Fd()),
-		uintptr(syscall.F_SETFL),
-		uintptr(0),
-	)
-	if e != 0 {
-		return os.NewSyscallError("fcntl", e)
-	}
-	return nil
+	return syscall.SetNonblock(int(s.f.Fd()), false)
 }
 
 func (s *Serial) setSpeed(b int) error {
@@ -228,6 +219,44 @@ func (s *Serial) setSpeed(b int) error {
 	t.c_cflag |= bb
 	t.c_ispeed = speed_t(b)
 	t.c_ospeed = speed_t(b)
+	if err := s.tcSetAttr(&t); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Serial) setParity(parity, odd bool) error {
+	var t termios
+	if err := s.tcGetAttr(&t); err != nil {
+		return err
+	}
+	if parity {
+		t.c_cflag |= parenb
+	} else {
+		t.c_cflag &^= parenb
+	}
+	if odd {
+		t.c_cflag |= parodd
+	} else {
+		t.c_cflag &^= parodd
+	}
+	if err := s.tcSetAttr(&t); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *Serial) setStopBits2(two bool) error {
+	var t termios
+	if err := s.tcGetAttr(&t); err != nil {
+		return err
+	}
+	if two {
+		t.c_cflag |= cstopb
+	} else {
+		t.c_cflag &^= cstopb
+	}
+
 	if err := s.tcSetAttr(&t); err != nil {
 		return err
 	}
