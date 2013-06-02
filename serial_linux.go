@@ -290,9 +290,9 @@ func (s *Serial) setCanon(canon bool) error {
 		return err
 	}
 	if canon {
-		t.c_iflag |= icanon
+		t.c_lflag |= icanon
 	} else {
-		t.c_iflag &^= icanon
+		t.c_lflag &^= icanon
 	}
 	if err := s.tcSetAttr(&t); err != nil {
 		return err
