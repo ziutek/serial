@@ -11,8 +11,8 @@ import (
 const nccs = 32
 
 type cc_t byte
-type speed_t uint
-type tcflag_t uint
+type speed_t uint32
+type tcflag_t uint32
 type termios struct {
 	c_iflag  tcflag_t   // input specific flags (bitmask)
 	c_oflag  tcflag_t   // output specific flags (bitmask)
