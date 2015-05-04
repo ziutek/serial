@@ -300,13 +300,13 @@ func (s *Serial) setCanon(canon bool) error {
 	return nil
 }
 
-func (s *Serial) setRawRead(vmin, vtime int) error {
+func (s *Serial) setRawRead(vmin_, vtime_ int) error {
 	var t termios
 	if err := s.tcGetAttr(&t); err != nil {
 		return err
 	}
-	t.c_cc[vmin] = cc_t(vmin)
-	t.c_cc[vtime] = cc_t(vtime)
+	t.c_cc[vmin] = cc_t(vmin_)
+	t.c_cc[vtime] = cc_t(vtime_)
 	if err := s.tcSetAttr(&t); err != nil {
 		return err
 	}
