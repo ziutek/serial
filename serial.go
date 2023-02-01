@@ -47,17 +47,15 @@ func (s *Serial) Write(b []byte) (int, error) {
 }
 
 func (s *Serial) WriteByte(c byte) error {
-	_, e := s.f.Write([]byte{c})
+	buf := [1]byte{c}
+	_, e := s.f.Write(buf[:])
 	return e
 }
 
 func (s *Serial) ReadByte() (byte, error) {
-	buf := []byte{0}
-	n, e := s.f.Read(buf)
-	if n == 1 {
-		return buf[0], nil
-	}
-	return 0, e
+	var buf [1]byte
+	_, err := s.f.Read(buf[:])
+	return buf[0], err
 }
 func (s *Serial) Name() string {
 	return s.f.Name()
