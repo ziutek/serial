@@ -19,8 +19,8 @@ type termios struct {
 	c_cflag  tcflag_t   // control flags (bitmask)
 	c_lflag  tcflag_t   // local flags (bitmask)
 	c_cc     [nccs]cc_t // special characters
-	c_ispeed speed_t    // input speed 
-	c_ospeed speed_t    // output speed 
+	c_ispeed speed_t    // input speed
+	c_ospeed speed_t    // output speed
 }
 
 // bits/termios.h
@@ -191,6 +191,9 @@ func (s *Serial) tcSetAttr(cfg *termios) error {
 
 func (s *Serial) init() error {
 	var t termios
+	if err := s.tcGetAttr(&t); err != nil {
+		return err
+	}
 	t.c_iflag = 0
 	t.c_oflag = 0
 	t.c_lflag = 0
@@ -202,7 +205,6 @@ func (s *Serial) init() error {
 	if err := s.tcSetAttr(&t); err != nil {
 		return err
 	}
-	// Clear non-blocking flag (we need nonblocking only for Open)
 	return syscall.SetNonblock(int(s.f.Fd()), false)
 }
 
